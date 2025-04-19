@@ -1,6 +1,7 @@
 package com.bhavesh.airbnbapp.service;
 
 import com.bhavesh.airbnbapp.dto.HotelDto;
+import com.bhavesh.airbnbapp.dto.HotelInfoDto;
 import com.bhavesh.airbnbapp.entity.Hotel;
 
 public interface HotelService {
@@ -16,4 +17,5 @@ public interface HotelService {
     void activateHotel(Long hotelId);
 
 
+    HotelInfoDto getHotelInfoById(Long hotelId);
 }

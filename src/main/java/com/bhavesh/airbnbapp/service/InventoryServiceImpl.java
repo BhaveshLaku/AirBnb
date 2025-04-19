@@ -63,7 +63,7 @@ public class InventoryServiceImpl implements InventoryService {
                 hotelSearchRequest.getEndDate(),
                 hotelSearchRequest.getRoomsCount(),
                 dateCount,
-                pageable);
+                pageable);  
 
         return hotelPage.map((hotel) -> modelMapper.map(hotel, HotelDto.class));
     }

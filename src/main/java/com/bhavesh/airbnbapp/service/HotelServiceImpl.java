@@ -1,6 +1,8 @@
 package com.bhavesh.airbnbapp.service;
 
 import com.bhavesh.airbnbapp.dto.HotelDto;
+import com.bhavesh.airbnbapp.dto.HotelInfoDto;
+import com.bhavesh.airbnbapp.dto.RoomDto;
 import com.bhavesh.airbnbapp.entity.Hotel;
 import com.bhavesh.airbnbapp.entity.Room;
 import com.bhavesh.airbnbapp.exception.ResourceNotFoundException;
@@ -11,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @Slf4j
@@ -75,16 +79,28 @@ public class HotelServiceImpl implements HotelService {
     @Transactional
     public void activateHotel(Long hotelId) {
         log.info("Activating hotel with id: {}", hotelId);
-        boolean exist = hotelRepository.existsById(hotelId);
-        if (!exist) {
-            throw new ResourceNotFoundException("Hotel not found with id: " + hotelId);
-        }
-        Hotel hotel = hotelRepository.findById(hotelId).get();
+        Hotel hotel = hotelRepository
+                .findById(hotelId)
+                .orElseThrow(() -> new ResourceNotFoundException("Hotel not found with id: " + hotelId));
         hotel.setActive(true);
 
 //        assuming only do it once
          for (Room room : hotel.getRooms()) {
             inventoryService.initializeRoomForAYear(room);
         }
+    }
+
+    @Override
+    public HotelInfoDto getHotelInfoById(Long hotelId) {
+        Hotel hotel = hotelRepository
+                .findById(hotelId)
+                .orElseThrow(() -> new ResourceNotFoundException("Hotel not found with id: " + hotelId));
+
+        List<RoomDto> rooms = hotel.getRooms()
+                .stream()
+                .map(room -> modelMapper.map(room, RoomDto.class))
+                .toList();
+
+        return new HotelInfoDto(modelMapper.map(hotel, HotelDto.class), rooms);
     }
 }

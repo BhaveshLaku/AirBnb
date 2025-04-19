@@ -25,14 +25,22 @@ public class InventoryServiceImpl implements InventoryService {
 
     private final InventoryRepository inventoryRepository;
     private final ModelMapper modelMapper;
+
     @Override
     public void initializeRoomForAYear(Room room) {
         LocalDate today = LocalDate.now();
         LocalDate endDate = today.plusYears(1);
+
+        log.info("Initializing inventory for room ID {} of hotel '{}' from {} to {}",
+                room.getId(), room.getHotel().getName(), today, endDate);
+
+        int count = 0;
         for (; !today.isAfter(endDate); today = today.plusDays(1)) {
             Inventory inventory = Inventory.builder()
                     .hotel(room.getHotel())
-                    .room(room).bookedCount(0)
+                    .room(room)
+                    .bookedCount(0)
+                    .reservedCount(0)
                     .city(room.getHotel().getCity())
                     .date(today)
                     .price(room.getBasePrice())
@@ -41,18 +49,30 @@ public class InventoryServiceImpl implements InventoryService {
                     .closed(false)
                     .build();
             inventoryRepository.save(inventory);
+            count++;
         }
 
+        log.info("Initialized {} inventory records for room ID {}", count, room.getId());
     }
 
     @Override
     public void deleteAllInventories(Room room) {
-        LocalDate today = LocalDate.now();
+        log.info("Deleting all inventory records for room ID {} of hotel '{}'",
+                room.getId(), room.getHotel().getName());
+
         inventoryRepository.deleteByRoom(room);
+
+        log.info("All inventory records deleted for room ID {}", room.getId());
     }
 
     @Override
     public Page<HotelDto> searchHotels(HotelSearchRequest hotelSearchRequest) {
+        log.info("Searching for hotels in city '{}' from {} to {} with at least {} room(s)",
+                hotelSearchRequest.getCity(),
+                hotelSearchRequest.getStartDate(),
+                hotelSearchRequest.getEndDate(),
+                hotelSearchRequest.getRoomsCount());
+
         Pageable pageable = PageRequest.of(hotelSearchRequest.getPage(), hotelSearchRequest.getSize());
 
         long dateCount = ChronoUnit.DAYS.between(hotelSearchRequest.getStartDate(), hotelSearchRequest.getEndDate()) + 1;
@@ -63,7 +83,9 @@ public class InventoryServiceImpl implements InventoryService {
                 hotelSearchRequest.getEndDate(),
                 hotelSearchRequest.getRoomsCount(),
                 dateCount,
-                pageable);  
+                pageable);
+
+        log.info("Found {} hotels matching criteria", hotelPage.getTotalElements());
 
         return hotelPage.map((hotel) -> modelMapper.map(hotel, HotelDto.class));
     }

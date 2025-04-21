@@ -1,5 +1,6 @@
 package com.bhavesh.airbnbapp.controller;
 
+import com.bhavesh.airbnbapp.dto.HotelDto;
 import com.bhavesh.airbnbapp.dto.HotelInfoDto;
 import com.bhavesh.airbnbapp.dto.HotelPriceDto;
 import com.bhavesh.airbnbapp.dto.HotelSearchRequest;

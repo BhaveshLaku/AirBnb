@@ -1,10 +1,10 @@
 package com.bhavesh.airbnbapp.service;
 
-import com.bhavesh.airbnbapp.dto.HotelDto;
+import com.bhavesh.airbnbapp.dto.HotelPriceDto;
 import com.bhavesh.airbnbapp.dto.HotelSearchRequest;
-import com.bhavesh.airbnbapp.entity.Hotel;
 import com.bhavesh.airbnbapp.entity.Inventory;
 import com.bhavesh.airbnbapp.entity.Room;
+import com.bhavesh.airbnbapp.repository.HotelMinPriceRepository;
 import com.bhavesh.airbnbapp.repository.InventoryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +25,7 @@ public class InventoryServiceImpl implements InventoryService {
 
     private final InventoryRepository inventoryRepository;
     private final ModelMapper modelMapper;
+    private final HotelMinPriceRepository hotelMinPriceRepository;
 
     @Override
     public void initializeRoomForAYear(Room room) {
@@ -66,7 +67,7 @@ public class InventoryServiceImpl implements InventoryService {
     }
 
     @Override
-    public Page<HotelDto> searchHotels(HotelSearchRequest hotelSearchRequest) {
+    public Page<HotelPriceDto> searchHotels(HotelSearchRequest hotelSearchRequest) {
         log.info("Searching for hotels in city '{}' from {} to {} with at least {} room(s)",
                 hotelSearchRequest.getCity(),
                 hotelSearchRequest.getStartDate(),
@@ -77,7 +78,8 @@ public class InventoryServiceImpl implements InventoryService {
 
         long dateCount = ChronoUnit.DAYS.between(hotelSearchRequest.getStartDate(), hotelSearchRequest.getEndDate()) + 1;
 
-        Page<Hotel> hotelPage = inventoryRepository.findHotelsWithAvailableInventory(
+        // bussiness logic - 90 days
+        Page<HotelPriceDto> hotelPage = hotelMinPriceRepository.findHotelsWithAvailableInventory(
                 hotelSearchRequest.getCity(),
                 hotelSearchRequest.getStartDate(),
                 hotelSearchRequest.getEndDate(),
@@ -87,6 +89,6 @@ public class InventoryServiceImpl implements InventoryService {
 
         log.info("Found {} hotels matching criteria", hotelPage.getTotalElements());
 
-        return hotelPage.map((hotel) -> modelMapper.map(hotel, HotelDto.class));
+        return hotelPage;
     }
 }

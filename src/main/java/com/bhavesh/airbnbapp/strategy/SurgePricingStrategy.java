@@ -2,11 +2,10 @@ package com.bhavesh.airbnbapp.strategy;
 
 import com.bhavesh.airbnbapp.entity.Inventory;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 
-@Service
+
 @RequiredArgsConstructor
 public class SurgePricingStrategy implements PricingStrategy {
 

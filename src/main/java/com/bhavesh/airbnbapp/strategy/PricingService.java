@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 @Service
 public class PricingService {
 
-    public BigDecimal calculateDynamicPrice(Inventory inventory) {
+    public BigDecimal calculateDynamicPricing(Inventory inventory) {
         PricingStrategy pricingStrategy = new BasePricingStrategy();
 
         //apply the additional pricing strategies here
@@ -20,4 +20,5 @@ public class PricingService {
 
         return pricingStrategy.calculatePrice(inventory);
     }
+
 }

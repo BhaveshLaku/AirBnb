@@ -3,37 +3,43 @@ package com.bhavesh.airbnbapp.service;
 import com.bhavesh.airbnbapp.dto.RoomDto;
 import com.bhavesh.airbnbapp.entity.Hotel;
 import com.bhavesh.airbnbapp.entity.Room;
+import com.bhavesh.airbnbapp.entity.User;
 import com.bhavesh.airbnbapp.exception.ResourceNotFoundException;
+import com.bhavesh.airbnbapp.exception.UnAuthorisedException;
 import com.bhavesh.airbnbapp.repository.HotelRepository;
-import com.bhavesh.airbnbapp.repository.InventoryRepository;
 import com.bhavesh.airbnbapp.repository.RoomRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class RoomServiceImpl implements RoomService {
 
     private final RoomRepository roomRepository;
     private final HotelRepository hotelRepository;
     private final InventoryService inventoryService;
-    private final InventoryRepository inventoryRepository;
     private final ModelMapper modelMapper;
-
 
     @Override
     public RoomDto createNewRoom(Long hotelId, RoomDto roomDto) {
         log.info("Creating a new room in hotel with ID: {}", hotelId);
         Hotel hotel = hotelRepository
                 .findById(hotelId)
-                .orElseThrow(() -> new ResourceNotFoundException("Hotel not found with ID: "+hotelId));
+                .orElseThrow(() -> new ResourceNotFoundException("Hotel not found with ID: " + hotelId));
+
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (!user.equals(hotel.getOwner())) {
+            throw new UnAuthorisedException("This user does not own this hotel with id: " + hotelId);
+        }
+
         Room room = modelMapper.map(roomDto, Room.class);
         room.setHotel(hotel);
         room = roomRepository.save(room);
@@ -50,7 +56,12 @@ public class RoomServiceImpl implements RoomService {
         log.info("Getting all rooms in hotel with ID: {}", hotelId);
         Hotel hotel = hotelRepository
                 .findById(hotelId)
-                .orElseThrow(() -> new ResourceNotFoundException("Hotel not found with ID: "+hotelId));
+                .orElseThrow(() -> new ResourceNotFoundException("Hotel not found with ID: " + hotelId));
+
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (!user.equals(hotel.getOwner())) {
+            throw new UnAuthorisedException("This user does not own this hotel with id: " + hotelId);
+        }
 
         return hotel.getRooms()
                 .stream()
@@ -63,7 +74,7 @@ public class RoomServiceImpl implements RoomService {
         log.info("Getting the room with ID: {}", roomId);
         Room room = roomRepository
                 .findById(roomId)
-                .orElseThrow(() -> new ResourceNotFoundException("Room not found with ID: "+roomId));
+                .orElseThrow(() -> new ResourceNotFoundException("Room not found with ID: " + roomId));
         return modelMapper.map(room, RoomDto.class);
     }
 
@@ -73,7 +84,13 @@ public class RoomServiceImpl implements RoomService {
         log.info("Deleting the room with ID: {}", roomId);
         Room room = roomRepository
                 .findById(roomId)
-                .orElseThrow(() -> new ResourceNotFoundException("Room not found with ID: "+roomId));
+                .orElseThrow(() -> new ResourceNotFoundException("Room not found with ID: " + roomId));
+
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (!user.equals(room.getHotel().getOwner())) {
+            throw new UnAuthorisedException("This user does not own this room with id: " + roomId);
+        }
+
         inventoryService.deleteAllInventories(room);
         roomRepository.deleteById(roomId);
     }

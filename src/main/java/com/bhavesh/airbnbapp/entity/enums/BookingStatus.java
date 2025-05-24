@@ -3,7 +3,7 @@ package com.bhavesh.airbnbapp.entity.enums;
 public enum BookingStatus {
 
     RESERVED,
-    GUEST_ADDED,
+    GUESTS_ADDED,
     PAYMENT_PENDING,
     CONFIRMED,
     CANCELLED,

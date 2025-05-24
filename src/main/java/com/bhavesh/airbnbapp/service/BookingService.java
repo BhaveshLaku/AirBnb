@@ -10,5 +10,5 @@ public interface BookingService {
 
     BookingDto initialiseBooking(BookingRequest bookingRequest);
 
-    BookingDto addGuests(List<GuestDto> guestDtoList, Long bookingId);
+    BookingDto addGuests(Long bookingId, List<GuestDto> guestDtoList);
 }

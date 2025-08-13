@@ -4,8 +4,8 @@ import com.bhavesh.airbnbapp.dto.RoomDto;
 
 import java.util.List;
 
-public interface RoomService {
 
+public interface RoomService {
 
     RoomDto createNewRoom(Long hotelId, RoomDto roomDto);
 
@@ -14,4 +14,6 @@ public interface RoomService {
     RoomDto getRoomById(Long roomId);
 
     void deleteRoomById(Long roomId);
+
+    RoomDto updateRoomById(Long hotelId, Long roomId, RoomDto roomDto);
 }

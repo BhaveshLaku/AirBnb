@@ -13,10 +13,10 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Table(
-        uniqueConstraints = {@UniqueConstraint(
+        uniqueConstraints = @UniqueConstraint(
                 name = "unique_hotel_room_date",
                 columnNames = {"hotel_id", "room_id", "date"}
-        )})
+        ))
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -32,7 +32,7 @@ public class Inventory {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_id", nullable = false)
-    private Room room;  //many inventories can have one room, cause of different dates, same room can have different inventories of different dates
+    private Room room;
 
     @Column(nullable = false)
     private LocalDate date;
@@ -50,7 +50,7 @@ public class Inventory {
     private BigDecimal surgeFactor;
 
     @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal price;  //price of Inventory on that particular day
+    private BigDecimal price;
 
     @Column(nullable = false)
     private String city;
@@ -63,5 +63,5 @@ public class Inventory {
 
     @UpdateTimestamp
     private LocalDateTime updatedAt;
-
 }
+

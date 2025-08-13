@@ -29,4 +29,3 @@ public interface BookingService {
 
     List<BookingDto> getMyBookings();
 }
-

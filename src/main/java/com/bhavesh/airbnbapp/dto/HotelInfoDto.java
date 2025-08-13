@@ -8,8 +8,6 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 public class HotelInfoDto {
-
     private HotelDto hotel;
-    private List<RoomDto> room;
-
+    private List<RoomPriceResponseDto> rooms;
 }
